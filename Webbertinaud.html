@@ -25,8 +25,15 @@ body{font-family:'Lexend Deca',sans-serif;background:var(--bg);color:var(--text)
 .hdr{width:100%;background:rgba(13,20,32,0.95);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;backdrop-filter:blur(16px);}
 .hdr-logo .name{font-size:1.1rem;font-weight:900;color:var(--gold);}
 .hdr-logo .sub{font-size:0.68rem;color:var(--muted);margin-top:1px;}
+.hdr-avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);flex-shrink:0;}
 .hdr-flags{font-size:1.5rem;}
-.hero{text-align:center;padding:36px 20px 28px;max-width:580px;width:100%;}
+.hero{
+  text-align:center;padding:36px 20px 28px;max-width:580px;width:100%;
+  background-image:linear-gradient(180deg, rgba(6,9,15,0.45) 0%, rgba(6,9,15,0.72) 55%, var(--bg) 100%), url('hero-bg.jpg');
+  background-size:cover;
+  background-position:center 40%;
+  background-repeat:no-repeat;
+}
 .hero-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(240,180,41,0.08);border:1px solid rgba(240,180,41,0.2);border-radius:99px;padding:5px 16px;font-size:0.72rem;font-weight:700;color:var(--gold);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:16px;}
 .hero h1{font-family:'Instrument Serif',serif;font-size:clamp(1.8rem,5vw,2.8rem);line-height:1.15;margin-bottom:8px;}
 .hero h1 em{color:var(--gold);font-style:italic;}
@@ -227,19 +234,144 @@ body{font-family:'Lexend Deca',sans-serif;background:var(--bg);color:var(--text)
 .bdg-neg { background:rgba(244,63,94,0.12); color:var(--red); }
 .bdg-fp  { background:rgba(16,185,129,0.12); color:var(--green); }
 
+/* ================================================================
+   ANIMATIONS
+   ================================================================ */
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+@keyframes popIn{0%{opacity:0;transform:scale(0.9);}100%{opacity:1;transform:scale(1);}}
+.q-card,.corr.on,.opt,.sec-card,.expr-card,.lec-card,.res-card,.panel.on,.gloss{animation:fadeSlideIn 0.35s ease both;}
+.mini-conj{animation:popIn 0.3s ease both;}
+.go-btn:active,.val-btn:active,.opt:active,.chk-btn:active,.rst-btn:active,.nxt-btn:active,
+.tab:active,.sec-card:active,.dir-btn:active,.exam-type-btn:active,.mode-btn:active,.back-btn:active{
+  transform:scale(0.96);
+}
+.score-pill{transition:transform 0.25s ease;}
+.score-pill.bump{animation:popIn 0.35s ease;}
+
+/* ================================================================
+   NAME GATE (écran de bienvenue)
+   ================================================================ */
+#name-gate{position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;background-image:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(240,180,41,0.08) 0%,transparent 70%);}
+.ng-box{max-width:340px;width:100%;animation:fadeSlideIn 0.4s ease both;}
+.ng-box .ng-emoji{font-size:2.4rem;margin-bottom:10px;}
+.ng-box h2{font-family:'Instrument Serif',serif;font-size:1.9rem;margin-bottom:8px;color:var(--text);}
+.ng-box p{font-size:0.85rem;color:var(--muted);margin-bottom:20px;}
+.ng-input{width:100%;background:var(--card2);border:1.5px solid var(--border2);border-radius:10px;padding:13px 16px;font-size:1rem;font-family:'Lexend Deca',sans-serif;font-weight:600;color:var(--text);outline:none;margin-bottom:14px;text-align:center;transition:border-color 0.2s;}
+.ng-input:focus{border-color:var(--gold);}
+.ng-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a0e00;border:none;border-radius:12px;font-family:'Lexend Deca',sans-serif;font-size:0.97rem;font-weight:900;cursor:pointer;transition:all 0.2s;}
+.ng-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(240,180,41,0.3);}
+.ng-change{background:none;border:none;color:var(--muted);font-size:0.66rem;text-decoration:underline;cursor:pointer;margin-left:8px;font-family:'Lexend Deca',sans-serif;padding:0;}
+.ng-change:hover{color:var(--text);}
+
+/* ================================================================
+   HOVER — animation au survol de tous les boutons/cartes
+   ================================================================ */
+.tab,.go-btn,.val-btn,.chk-btn,.rst-btn,.nxt-btn,.back-btn,.opt,
+.sec-card,.mode-btn,.dir-btn,.exam-type-btn,.expr-cat-btn,.lec-card,.lec-btn,
+.mic-btn,.tts-btn,.ng-btn,.ng-change,.settings-gear,.theme-swatch,#install-btn{
+  transition:transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.tab:hover,.go-btn:hover,.val-btn:hover:not(:disabled),.chk-btn:hover:not(:disabled),
+.rst-btn:hover,.nxt-btn:hover,.back-btn:hover,.opt:hover:not(:disabled),
+.sec-card:hover,.mode-btn:hover,.dir-btn:hover,.exam-type-btn:hover,.expr-cat-btn:hover,
+.lec-card:hover,.lec-btn:hover,.mic-btn:hover,.tts-btn:hover,.ng-btn:hover,
+.settings-gear:hover,.theme-swatch:hover,#install-btn:hover{
+  transform:translateY(-3px) scale(1.03);
+  box-shadow:0 8px 20px rgba(0,0,0,0.35);
+  z-index:2;
+}
+
+/* ================================================================
+   ILLUSTRATION HERO
+   ================================================================ */
+.hero-illus{margin:0 auto 12px;display:block;}
+.hi-accent{fill:var(--gold);}
+.hi-accent2{fill:var(--gold2);}
+.hi-card{fill:var(--card2);}
+.hi-border{stroke:var(--border2);}
+.hi-text{fill:var(--text);}
+@keyframes floatY{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+.hi-sparkle{animation:floatY 2.6s ease-in-out infinite;transform-origin:center;}
+.hi-sparkle.d2{animation-delay:0.4s;}
+.hi-sparkle.d3{animation-delay:0.9s;}
+
+/* ================================================================
+   CÉLÉBRATION ÉCRAN DE RÉSULTAT
+   ================================================================ */
+.res-card{position:relative;overflow:hidden;}
+.res-card::before{content:"🎉";display:block;font-size:2.2rem;margin-bottom:6px;animation:popIn 0.5s ease both, floatY 2.4s ease-in-out 0.5s infinite;}
+
+/* ================================================================
+   PANNEAU DE PERSONNALISATION (thème + voix)
+   ================================================================ */
+.settings-gear{background:var(--card);border:1px solid var(--border);color:var(--gold);border-radius:8px;padding:6px 10px;font-size:0.95rem;cursor:pointer;}
+.settings-panel{display:none;position:fixed;inset:0;z-index:600;background:rgba(2,4,8,0.72);align-items:center;justify-content:center;padding:20px;}
+.settings-box{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:22px;max-width:380px;width:100%;max-height:85vh;overflow-y:auto;animation:fadeSlideIn 0.3s ease both;}
+.settings-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;font-weight:800;font-size:1rem;color:var(--text);}
+.settings-close{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:0.85rem;}
+.settings-sec-label{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin:16px 0 8px;}
+.settings-sec-label:first-of-type{margin-top:0;}
+.theme-swatches{display:flex;gap:10px;flex-wrap:wrap;}
+.theme-swatch{width:38px;height:38px;border-radius:50%;border:2px solid var(--border2);cursor:pointer;padding:0;}
+.custom-theme-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;}
+.custom-theme-row label{font-size:0.72rem;color:var(--muted);display:flex;flex-direction:column;gap:4px;align-items:center;}
+.custom-theme-row input[type=color]{width:44px;height:32px;border:none;border-radius:8px;background:none;cursor:pointer;}
+.voice-rate-val{font-size:0.75rem;color:var(--gold2);text-align:right;margin-top:2px;}
+#voice-rate{width:100%;accent-color:var(--gold);}
+
 </style>
 </head>
 <body>
 
+<div id="name-gate">
+  <div class="ng-box">
+    <div class="ng-emoji">👋</div>
+    <h2>Bienvenue !</h2>
+    <p>Entre ton prénom pour commencer et retrouver ta progression.</p>
+    <input type="text" id="name-gate-input" class="ng-input" placeholder="Ton prénom" maxlength="24" onkeydown="if(event.key==='Enter')startWithName()">
+    <button class="ng-btn" onclick="startWithName()">Commencer ✨</button>
+  </div>
+</div>
+
 <div class="hdr">
-  <div class="hdr-logo">
-    <div class="name">Quiz Intelligent 🇫🇷</div>
-    <div class="sub">✏️ By Mr Tsiaraso Webbertinaud</div>
+  <div class="hdr-logo" style="display:flex;align-items:center;gap:10px;">
+    <img src="portrait-webbertinaud.jpg" alt="Mr Tsiaraso Webbertinaud" class="hdr-avatar">
+    <div>
+      <div class="name">Quiz Intelligent 🇫🇷</div>
+      <div class="sub">✏️ By Mr Tsiaraso Webbertinaud</div>
+    </div>
   </div>
   <div style="display:flex;align-items:center;gap:10px;">
   <button id="install-btn" style="display:none;background:var(--gold);color:#1a0e00;border:none;border-radius:8px;padding:6px 12px;font-family:Lexend Deca,sans-serif;font-size:0.72rem;font-weight:800;cursor:pointer;" onclick="installApp()">📲 Installer</button>
+  <button class="settings-gear" onclick="toggleSettings()" title="Personnaliser">⚙️</button>
   <div class="hdr-flags">🇫🇷 🇲🇬</div>
 </div>
+</div>
+
+<div id="settings-panel" class="settings-panel">
+  <div class="settings-box">
+    <div class="settings-hd">
+      <span>🎨 Personnalisation</span>
+      <button class="settings-close" onclick="toggleSettings()">✕</button>
+    </div>
+
+    <div class="settings-sec-label">Thème</div>
+    <div class="theme-swatches" id="theme-swatches"></div>
+
+    <div class="settings-sec-label">Couleurs personnalisées</div>
+    <div class="custom-theme-row">
+      <label>Accent <input type="color" id="custom-accent" value="#f0b429"></label>
+      <label>Fond <input type="color" id="custom-bg" value="#06090f"></label>
+      <button class="ng-btn" style="margin-top:0;flex:1;min-width:140px;" onclick="applyCustomTheme()">Appliquer</button>
+    </div>
+
+    <div class="settings-sec-label">Voix de lecture (section Lecture)</div>
+    <select id="voice-select" class="ng-input" onchange="onVoiceChange()"></select>
+    <div class="settings-sec-label" style="margin-top:10px;">Vitesse de lecture</div>
+    <input type="range" id="voice-rate" min="0.6" max="1.15" step="0.05" value="0.85" oninput="onRateChange()">
+    <div class="voice-rate-val"><span id="voice-rate-val">0.85</span>x</div>
+    <button class="lec-btn play" style="margin-top:12px;width:100%;" onclick="testVoice()">🔊 Tester la voix</button>
+  </div>
 </div>
 
 <div class="global-score">
@@ -248,7 +380,23 @@ body{font-family:'Lexend Deca',sans-serif;background:var(--bg);color:var(--text)
 </div>
 
 <div class="hero">
-  <div class="hero-pill">✨ Niveau A2 · Élève : Brave</div>
+  <svg class="hero-illus" width="120" height="90" viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg">
+    <path class="hi-card hi-border" stroke-width="1.5" d="M10 68 C10 30, 30 16, 60 16 C90 16, 110 30, 110 68 L100 68 L100 40 L20 40 L20 68 Z"/>
+    <rect class="hi-card hi-border" stroke-width="1.5" x="14" y="66" width="92" height="10" rx="3"/>
+    <path class="hi-accent" d="M60 22 C46 22 36 30 34 40 L58 40 L58 24 Z"/>
+    <path class="hi-accent2" d="M60 22 C74 22 84 30 86 40 L62 40 L62 24 Z"/>
+    <text x="60" y="36" text-anchor="middle" font-size="9" font-weight="800" class="hi-text" font-family="Lexend Deca, sans-serif">FR</text>
+    <g class="hi-sparkle">
+      <path class="hi-accent" d="M18 14 l2 5 l5 2 l-5 2 l-2 5 l-2 -5 l-5 -2 l5 -2 Z"/>
+    </g>
+    <g class="hi-sparkle d2">
+      <circle class="hi-accent2" cx="104" cy="16" r="3"/>
+    </g>
+    <g class="hi-sparkle d3">
+      <path class="hi-accent" d="M96 60 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6 Z"/>
+    </g>
+  </svg>
+  <div class="hero-pill"><span id="hero-pill-txt">✨ Niveau A2</span><button class="ng-change" onclick="changeStudent()">changer d'élève</button></div>
   <h1>Apprends le <em>Français</em><br>à ton rythme</h1>
   <p>+250 questions · 430+ mots · 180 Expressions · Lecture</p>
 </div>
@@ -1846,7 +1994,256 @@ function addGlobalScore(pts){
   globalScore+=pts;
   var el=$('global-score-val');
   if(el) el.textContent=globalScore;
+  if(el){ el.parentElement.classList.remove('bump'); void el.parentElement.offsetWidth; el.parentElement.classList.add('bump'); }
+  saveProgress();
 }
+
+// ================================================================
+// ÉLÈVE : NOM + PROGRESSION SAUVEGARDÉE (localStorage)
+// ================================================================
+const NAME_KEY = 'qw_student_name';
+
+function getStudentName(){ return localStorage.getItem(NAME_KEY) || ''; }
+
+function loadProgressFor(name){
+  var raw = localStorage.getItem('qw_progress_' + name);
+  try{ return raw ? JSON.parse(raw) : { globalScore: 0 }; }
+  catch(e){ return { globalScore: 0 }; }
+}
+
+function saveProgress(){
+  var name = getStudentName();
+  if(!name) return;
+  localStorage.setItem('qw_progress_' + name, JSON.stringify({ globalScore: globalScore }));
+}
+
+function applyStudentName(name){
+  var pill = $('hero-pill-txt');
+  if(pill) pill.textContent = '✨ Niveau A2 · Élève : ' + name;
+  var progress = loadProgressFor(name);
+  globalScore = progress.globalScore || 0;
+  var el = $('global-score-val');
+  if(el) el.textContent = globalScore;
+}
+
+function startWithName(){
+  var input = $('name-gate-input');
+  var name = input.value.trim();
+  if(!name){ input.focus(); return; }
+  localStorage.setItem(NAME_KEY, name);
+  applyStudentName(name);
+  var gate = $('name-gate');
+  if(gate) gate.style.display = 'none';
+}
+
+function changeStudent(){
+  localStorage.removeItem(NAME_KEY);
+  var gate = $('name-gate');
+  if(gate){
+    gate.style.display = 'flex';
+    var input = $('name-gate-input');
+    if(input){ input.value=''; input.focus(); }
+  }
+}
+
+(function initNameGate(){
+  var existing = getStudentName();
+  var gate = $('name-gate');
+  if(existing){
+    applyStudentName(existing);
+    if(gate) gate.style.display = 'none';
+  }
+})();
+
+// ================================================================
+// THÈME & PERSONNALISATION
+// ================================================================
+const THEME_KEY = 'qw_theme';
+const VOICE_NAME_KEY = 'qw_voice_name';
+const VOICE_RATE_KEY = 'qw_voice_rate';
+
+const THEMES = [
+  { key:'gold', name:'Doré (défaut)', vars:{
+    '--bg':'#06090f','--surface':'#0d1420','--card':'#111d2e','--card2':'#162034',
+    '--border':'#1c2e45','--border2':'#243650','--gold':'#f0b429','--gold2':'#ffd97d',
+    '--text':'#ddeeff','--muted':'#4a6a8a','--muted2':'#2a4560'
+  }},
+  { key:'ocean', name:'Océan', vars:{
+    '--bg':'#050c14','--surface':'#0b1622','--card':'#0f1e2e','--card2':'#142838',
+    '--border':'#1b3348','--border2':'#234258','--gold':'#38bdf8','--gold2':'#93e2ff',
+    '--text':'#e2f3ff','--muted':'#4a7a92','--muted2':'#26506a'
+  }},
+  { key:'emerald', name:'Émeraude', vars:{
+    '--bg':'#050f0c','--surface':'#0a1a15','--card':'#0e241d','--card2':'#132e25',
+    '--border':'#1b4536','--border2':'#235645','--gold':'#34d399','--gold2':'#9ff5d0',
+    '--text':'#dcfff1','--muted':'#4a8a72','--muted2':'#245e46'
+  }},
+  { key:'rose', name:'Rose', vars:{
+    '--bg':'#0f070c','--surface':'#1a0e16','--card':'#25121d','--card2':'#301826',
+    '--border':'#48213a','--border2':'#5a2a48','--gold':'#f472b6','--gold2':'#fbcfe8',
+    '--text':'#ffe4f1','--muted':'#8a4a6c','--muted2':'#5e2646'
+  }},
+  { key:'light', name:'Clair', vars:{
+    '--bg':'#f5f3ee','--surface':'#ffffff','--card':'#ffffff','--card2':'#f0ede6',
+    '--border':'#e2ddd2','--border2':'#d3ccbd','--gold':'#c9861f','--gold2':'#e0a84a',
+    '--text':'#211a10','--muted':'#7a7266','--muted2':'#c9c2b3'
+  }}
+];
+
+function applyThemeVars(vars){
+  var root = document.documentElement;
+  Object.keys(vars).forEach(function(k){ root.style.setProperty(k, vars[k]); });
+}
+
+function applyTheme(themeKey){
+  var t = THEMES.find(function(t){ return t.key===themeKey; });
+  if(!t) return;
+  applyThemeVars(t.vars);
+  localStorage.setItem(THEME_KEY, JSON.stringify({type:'preset', key:themeKey}));
+}
+
+function hexToRgb(hex){
+  hex = hex.replace('#','');
+  if(hex.length===3) hex = hex.split('').map(function(c){return c+c;}).join('');
+  var num = parseInt(hex,16);
+  return [(num>>16)&255,(num>>8)&255,num&255];
+}
+function rgbToHex(r,g,b){
+  return '#'+[r,g,b].map(function(v){
+    v = Math.max(0,Math.min(255,Math.round(v)));
+    var s = v.toString(16);
+    return s.length===1 ? '0'+s : s;
+  }).join('');
+}
+function relLuminance(hex){
+  var rgb = hexToRgb(hex);
+  return (0.299*rgb[0]+0.587*rgb[1]+0.114*rgb[2])/255;
+}
+function lightenHex(hex, amt){
+  var rgb = hexToRgb(hex);
+  var target = amt >= 0 ? 255 : 0;
+  var f = Math.abs(amt);
+  var out = rgb.map(function(c){ return c + (target-c)*f; });
+  return rgbToHex(out[0],out[1],out[2]);
+}
+
+function buildCustomThemeVars(accent, bg){
+  var isDark = relLuminance(bg) < 0.5;
+  var step = isDark ? 1 : -1;
+  return {
+    '--bg': bg,
+    '--surface': lightenHex(bg, step*0.04),
+    '--card': lightenHex(bg, step*0.07),
+    '--card2': lightenHex(bg, step*0.11),
+    '--border': lightenHex(bg, step*0.15),
+    '--border2': lightenHex(bg, step*0.20),
+    '--gold': accent,
+    '--gold2': lightenHex(accent, 0.2),
+    '--text': isDark ? '#ddeeff' : '#201a10',
+    '--muted': isDark ? '#4a6a8a' : '#7a7266',
+    '--muted2': isDark ? '#2a4560' : '#cfc8ba'
+  };
+}
+
+function applyCustomTheme(){
+  var accent = $('custom-accent').value;
+  var bg = $('custom-bg').value;
+  var vars = buildCustomThemeVars(accent, bg);
+  applyThemeVars(vars);
+  localStorage.setItem(THEME_KEY, JSON.stringify({type:'custom', accent:accent, bg:bg}));
+}
+
+function loadSavedTheme(){
+  var raw = localStorage.getItem(THEME_KEY);
+  if(!raw) return;
+  try{
+    var saved = JSON.parse(raw);
+    if(saved.type==='preset'){
+      var t = THEMES.find(function(t){ return t.key===saved.key; });
+      if(t) applyThemeVars(t.vars);
+    } else if(saved.type==='custom'){
+      applyThemeVars(buildCustomThemeVars(saved.accent, saved.bg));
+      var ca=$('custom-accent'), cb=$('custom-bg');
+      if(ca) ca.value = saved.accent;
+      if(cb) cb.value = saved.bg;
+    }
+  }catch(e){}
+}
+
+function buildThemeSwatches(){
+  var wrap = $('theme-swatches');
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  THEMES.forEach(function(t){
+    var b = document.createElement('button');
+    b.className = 'theme-swatch';
+    b.title = t.name;
+    b.style.background = 'linear-gradient(135deg,'+t.vars['--bg']+' 50%,'+t.vars['--gold']+' 50%)';
+    b.onclick = function(){ applyTheme(t.key); };
+    wrap.appendChild(b);
+  });
+}
+
+function toggleSettings(){
+  var p = $('settings-panel');
+  if(!p) return;
+  var show = p.style.display !== 'flex';
+  p.style.display = show ? 'flex' : 'none';
+  if(show) populateVoiceSelect();
+}
+
+function populateVoiceSelect(){
+  var sel = $('voice-select');
+  if(!sel || !window.speechSynthesis) return;
+  var voices = window.speechSynthesis.getVoices().filter(function(v){
+    return v.lang && v.lang.toLowerCase().indexOf('fr') === 0;
+  });
+  var savedName = localStorage.getItem(VOICE_NAME_KEY);
+  sel.innerHTML = '<option value="">Sélection automatique (recommandé)</option>';
+  voices.forEach(function(v){
+    var opt = document.createElement('option');
+    opt.value = v.name; opt.textContent = v.name + ' (' + v.lang + ')';
+    if(v.name === savedName) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  var savedRate = parseFloat(localStorage.getItem(VOICE_RATE_KEY)) || 0.85;
+  var rateInput = $('voice-rate'); if(rateInput) rateInput.value = savedRate;
+  var rateVal = $('voice-rate-val'); if(rateVal) rateVal.textContent = savedRate;
+}
+
+function onVoiceChange(){
+  var sel = $('voice-select');
+  localStorage.setItem(VOICE_NAME_KEY, sel.value || '');
+}
+function onRateChange(){
+  var rateInput = $('voice-rate');
+  var rateVal = $('voice-rate-val');
+  if(rateVal) rateVal.textContent = rateInput.value;
+  localStorage.setItem(VOICE_RATE_KEY, rateInput.value);
+}
+function testVoice(){
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  var utt = new SpeechSynthesisUtterance("Bonjour, voici un exemple de ma voix pour lire les textes.");
+  utt.lang = 'fr-FR';
+  utt.rate = parseFloat(localStorage.getItem(VOICE_RATE_KEY)) || 0.85;
+  var voices = window.speechSynthesis.getVoices();
+  var v = pickPreferredFrenchVoice(voices);
+  if(v) utt.voice = v;
+  window.speechSynthesis.speak(utt);
+}
+
+function pickPreferredFrenchVoice(voices){
+  var savedName = localStorage.getItem(VOICE_NAME_KEY);
+  if(savedName){
+    var chosen = voices.find(function(v){ return v.name === savedName; });
+    if(chosen) return chosen;
+  }
+  return (typeof pickNaturalFrenchVoice === 'function') ? pickNaturalFrenchVoice(voices) : null;
+}
+
+buildThemeSwatches();
+loadSavedTheme();
 
 // TABS
 function showTab(id){
@@ -3064,6 +3461,7 @@ function regularImparfait(verb){
 }
 
 function regularFutur(verb){
+  if(!(verb.endsWith("er") || verb.endsWith("ir") || verb.endsWith("re"))) return null;
   var stem;
   if(verb.endsWith("re")) stem = verb.slice(0,-1);
   else stem = verb;
@@ -3103,22 +3501,22 @@ function buildMiniConjTable(verb, correctAnswer){
   var forms = null;
 
   // Detect tense from correctAnswer
-  var pp = PARTICIPE_PASSE[verbKey];
+  var pp = getParticipePasse(verbKey);
   var isPC = pp && correctAnswer.toLowerCase().indexOf(pp.toLowerCase()) !== -1 && correctAnswer.indexOf(" ") !== -1;
 
   if(!isPC){
-    var presF = FULL_CONJ["présent"] && FULL_CONJ["présent"][verbKey];
+    var presF = getConjugation(verbKey, "présent");
     if(presF && presF.some(function(f){return norm(f)===norm(correctAnswer);})){
       tense="présent"; forms=presF;
     }
     if(!tense){
-      var impF = FULL_CONJ["imparfait"] && FULL_CONJ["imparfait"][verbKey];
+      var impF = getConjugation(verbKey, "imparfait");
       if(impF && impF.some(function(f){return norm(f)===norm(correctAnswer);})){
         tense="imparfait"; forms=impF;
       }
     }
     if(!tense){
-      var futF = FULL_CONJ["futur simple"] && FULL_CONJ["futur simple"][verbKey];
+      var futF = getConjugation(verbKey, "futur simple");
       if(futF && futF.some(function(f){return norm(f)===norm(correctAnswer);})){
         tense="futur simple"; forms=futF;
       }
@@ -3320,7 +3718,61 @@ function checkExamTranslate(){
   nb.textContent=examIdx<examQs.length-1?"Suivant →":"Voir les résultats";
 }
 
-function checkExamPhrase(){
+// Détecte, sans connaître le verbe à l'avance, si la phrase contient
+// un verbe conjugué plausible au temps demandé (utile quand le mot à
+// placer est un adjectif/nom/expression et non un verbe).
+function detectGenericTenseUsage(sentence, tense){
+  var STOPWORDS = ["le","la","les","un","une","des","du","de","au","aux","je","tu","il","elle","on",
+    "nous","vous","ils","elles","et","ou","mais","que","qui","ne","pas","plus","très","bien","dans",
+    "avec","pour","sur","son","sa","ses","mon","ma","mes","ton","ta","tes","ce","cette","ces",
+    "en","si","ni","or","eh","ah","oh","y"];
+  var AUX_FORMS = ["ai","as","a","avons","avez","ont","suis","es","est","sommes","êtes","sont","etes","etre","être","avoir","aussi","ainsi","lui","celui","ici","voici","oui","merci","toi","moi","soi"];
+  // Les contractions (j'ai, qu'il...) sont découpées pour isoler la vraie forme verbale
+  var allTokens = sentence.toLowerCase().replace(/[^a-zà-ÿ'\s-]/gi," ").replace(/['']/g," ").split(/\s+/).filter(Boolean);
+  var words = allTokens.filter(function(w){ return w.length > 2 && STOPWORDS.indexOf(w) === -1; });
+  // Les participes passés courts (eu, vu, su, pu, lu...) ont seulement 2 lettres
+  var ppCandidates = allTokens.filter(function(w){
+    return w.length >= 2 && STOPWORDS.indexOf(w) === -1 && AUX_FORMS.indexOf(w) === -1;
+  });
+
+  if(tense === "imparfait"){
+    return words.some(function(w){ return /(ais|ait|ions|iez|aient)$/.test(w); });
+  }
+  if(tense === "futur simple"){
+    return words.some(function(w){ return /(rai|ras|ra|rons|rez|ront)$/.test(w); }) ||
+           /\b(vais|vas|va|allons|allez|vont)\b/.test(sentence.toLowerCase());
+  }
+  if(tense === "passé composé"){
+    var hasAux = /\b(ai|as|a|avons|avez|ont|suis|es|est|sommes|êtes|sont)\b/i.test(sentence);
+    var hasPP = ppCandidates.some(function(w){ return /(é|ée|és|ées|i|ie|is|it|u|ue|us|ues)$/.test(w); });
+    return hasAux && hasPP;
+  }
+  // présent : plus difficile à isoler, on accepte toute terminaison verbale plausible
+  return ppCandidates.some(function(w){ return /(e|es|ons|ez|ent|is|it|issons|issez|issent)$/.test(w); });
+}
+
+// Correction grammaticale avancée via l'API gratuite LanguageTool (aucun compte requis).
+// Si hors-ligne ou indisponible, l'app continue avec les vérifications locales seules.
+async function checkWithLanguageTool(text){
+  var controller = new AbortController();
+  var timeout = setTimeout(function(){ controller.abort(); }, 6000);
+  try{
+    var res = await fetch("https://api.languagetool.org/v2/check", {
+      method: "POST",
+      headers: {"Content-Type":"application/x-www-form-urlencoded"},
+      body: "text=" + encodeURIComponent(text) + "&language=fr",
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    if(!res.ok) return null;
+    return await res.json();
+  }catch(e){
+    clearTimeout(timeout);
+    return null;
+  }
+}
+
+async function checkExamPhrase(){
   var q = examQs[examIdx];
   var ta = document.getElementById("exam-phrase-inp");
   var val = ta.value.trim();
@@ -3344,6 +3796,12 @@ function checkExamPhrase(){
   // ══ 2. LONGUEUR MINIMALE ══
   if(val.trim().split(/\s+/).length < 3)
     errors.push("Phrase trop courte — minimum 3 mots.");
+
+  // ══ 2b. MAJUSCULE & PONCTUATION ══
+  if(!/^[A-ZÀÂÄÉÈÊËÏÎÔÖÙÛÜÇ]/.test(val.trim()))
+    errors.push("Commence ta phrase par une majuscule.");
+  if(!/[.!?]\s*$/.test(val.trim()))
+    errors.push("Termine ta phrase par un point (. ! ou ?).");
 
   // ══ 3. DÉTECTION DU SUJET ══
   var SUBJECTS = [
@@ -3428,21 +3886,61 @@ function checkExamPhrase(){
           }
         }
       } else {
-        var conjugOk = forms.some(function(f){ return val.toLowerCase().indexOf(f.toLowerCase()) !== -1; });
-        if(!conjugOk) errors.push("Conjugaison incorrecte. Formes valides : je "+forms[0]+" / tu "+forms[1]+" / il "+forms[2]+" / nous "+forms[3]+" / vous "+forms[4]+" / ils "+forms[5]+".");
+        // Aucun pronom sujet détecté : la phrase utilise probablement un prénom
+        // (Jo, Rabe, Aaron, Brave...) comme sujet, comme dans les exemples de
+        // l'app. On l'assimile à "il/elle" (3e pers. singulier).
+        var expected3s = forms[2];
+        var has3s = val.toLowerCase().indexOf(expected3s.toLowerCase()) !== -1;
+        if(!has3s){
+          var wrongForm3 = null;
+          for(var fi3=0; fi3<forms.length; fi3++){
+            if(fi3 !== 2 && val.toLowerCase().indexOf(forms[fi3].toLowerCase()) !== -1){
+              wrongForm3 = {form:forms[fi3], label:["je","tu","il/elle","nous","vous","ils/elles"][fi3]};
+              break;
+            }
+          }
+          if(wrongForm3){
+            errors.push("Accord sujet-verbe : avec un prénom (comme sujet) → « "+expected3s+" » (pas « "+wrongForm3.form+" », qui est la forme de « "+wrongForm3.label+" »).");
+            corrected = corrected.replace(new RegExp("\\b"+wrongForm3.form+"\\b","gi"), expected3s);
+          } else {
+            errors.push("Conjugaison incorrecte. Formes valides : je "+forms[0]+" / tu "+forms[1]+" / il "+forms[2]+" / nous "+forms[3]+" / vous "+forms[4]+" / ils "+forms[5]+".");
+          }
+        }
       }
     } else {
-      var s2 = verbKey.substring(0, Math.max(4,verbKey.length-2));
-      if(val.toLowerCase().indexOf(s2) === -1) errors.push("Le verbe « "+verbKey+" » n'est pas utilisé dans ta phrase.");
+      // Le mot proposé n'est pas un verbe (adjectif, nom, expression...) :
+      // on vérifie qu'il est bien utilisé ET qu'un verbe conjugué au bon
+      // temps est présent, sans se contenter de chercher un simple mot.
+      var cleanWord = q.fr.split("/")[0].replace(/\([^)]*\)/g,"").trim();
+      var wordNorm = norm(cleanWord.replace(/^(le |la |les |l'|l’|un |une |des |du )/,""));
+      var wordStem = wordNorm.substring(0, Math.max(4, wordNorm.length-2));
+      if(norm(val).indexOf(wordStem) === -1){
+        errors.push("Le mot « "+q.fr+" » n'est pas utilisé dans ta phrase.");
+      }
+      if(!detectGenericTenseUsage(val, tense)){
+        var tenseExamples = {
+          "présent":"je mange, tu finis, il fait...",
+          "imparfait":"je mangeais, tu finissais, il faisait...",
+          "futur simple":"je mangerai, tu finiras, il fera...",
+          "passé composé":"j'ai mangé, tu as fini, il est parti..."
+        };
+        errors.push("Ta phrase doit contenir un verbe conjugué au <strong>"+tense+"</strong> (ex : "+(tenseExamples[tense]||"")+").");
+      }
     }
   }
 
   // ══ 5. ACCORD DES POSSESSIFS (mon/ma, ton/ta, son/sa) ══
+  // Tolère les accents manquants (ex: "mere" au lieu de "mère"), très fréquent à l'écrit rapide.
+  function accentTolerant(word){
+    return word.replace(/[éèêë]/gi,"[eéèêë]").replace(/[àâ]/gi,"[aàâ]")
+      .replace(/[ùû]/gi,"[uùû]").replace(/[îï]/gi,"[iîï]").replace(/[ôö]/gi,"[oôö]").replace(/[ç]/gi,"[cç]");
+  }
   var NOMS_FEM_POSS = ["mère","sœur","fille","femme","voiture","maison","école","chambre","table","porte","cuisine","rue","vie","main","tête","jambe","couleur","lettre","photo","idée"];
   NOMS_FEM_POSS.forEach(function(nom){
-    if(new RegExp("\\bmon "+nom+"\\b","i").test(val)){ errors.push("Accord possessif : « "+nom+" » est féminin → « ma "+nom+" » pas « mon "+nom+" »."); corrected=corrected.replace(new RegExp("\\bmon "+nom+"\\b","gi"),"ma "+nom); }
-    if(new RegExp("\\bton "+nom+"\\b","i").test(val)){ errors.push("Accord possessif : « "+nom+" » est féminin → « ta "+nom+" » pas « ton "+nom+" »."); corrected=corrected.replace(new RegExp("\\bton "+nom+"\\b","gi"),"ta "+nom); }
-    if(new RegExp("\\bson "+nom+"\\b","i").test(val)){ errors.push("Accord possessif : « "+nom+" » est féminin → « sa "+nom+" » pas « son "+nom+" »."); corrected=corrected.replace(new RegExp("\\bson "+nom+"\\b","gi"),"sa "+nom); }
+    var pat = accentTolerant(nom);
+    if(new RegExp("\\bmon\\s+"+pat+"\\b","i").test(val)){ errors.push("Accord possessif : « "+nom+" » est féminin → « ma "+nom+" » pas « mon "+nom+" »."); corrected=corrected.replace(new RegExp("\\bmon\\s+"+pat+"\\b","gi"),"ma "+nom); }
+    if(new RegExp("\\bton\\s+"+pat+"\\b","i").test(val)){ errors.push("Accord possessif : « "+nom+" » est féminin → « ta "+nom+" » pas « ton "+nom+" »."); corrected=corrected.replace(new RegExp("\\bton\\s+"+pat+"\\b","gi"),"ta "+nom); }
+    if(new RegExp("\\bson\\s+"+pat+"\\b","i").test(val)){ errors.push("Accord possessif : « "+nom+" » est féminin → « sa "+nom+" » pas « son "+nom+" »."); corrected=corrected.replace(new RegExp("\\bson\\s+"+pat+"\\b","gi"),"sa "+nom); }
   });
 
   // ══ 6. ARTICLES & PRÉPOSITIONS ══
@@ -3481,6 +3979,25 @@ function checkExamPhrase(){
   if(/\bils a\b/i.test(val)){errors.push("« ils a » → « ils ont »"); corrected=corrected.replace(/\bils a\b/gi,"ils ont");}
   if(/\bje as\b/i.test(val)){errors.push("« je as » → « j'ai »"); corrected=corrected.replace(/\bje as\b/gi,"j'ai");}
 
+  // ══ 8b. VÉRIFICATION AVANCÉE (LanguageTool, en ligne) ══
+  var ch0 = document.getElementById("exam-ch");
+  ch0.className = "corr-hd no";
+  ch0.innerHTML = "🔍 Vérification avancée en cours...";
+  document.getElementById("exam-ca").innerHTML = "<em style='color:var(--muted)'>Analyse de ta phrase avec un correcteur grammatical complet...</em>";
+  document.getElementById("exam-corr").classList.add("on");
+
+  var ltUsed = false;
+  var ltData = await checkWithLanguageTool(val);
+  if(ltData && Array.isArray(ltData.matches)){
+    ltUsed = true;
+    ltData.matches.slice(0,5).forEach(function(m){
+      var suggestion = (m.replacements && m.replacements.length) ? m.replacements[0].value : null;
+      var bad = val.substr(m.offset, m.length);
+      errors.push(m.message + (suggestion && bad ? " → « "+bad+" » devrait être « "+suggestion+" »." : ""));
+      if(suggestion && bad) corrected = corrected.split(bad).join(suggestion);
+    });
+  }
+
   // ══ 9. RÉSULTAT FINAL ══
   var ok = errors.length === 0;
   if(ok) examSc++;
@@ -3517,6 +4034,8 @@ function checkExamPhrase(){
       caHtml += "</div>";
     }
   }
+  caHtml += "<div style='font-size:0.66rem;color:var(--muted);margin-top:10px;font-style:italic;'>"+
+    (ltUsed ? "🌐 Vérifié aussi avec LanguageTool." : "⚠️ Correcteur avancé indisponible (hors-ligne) — vérification locale uniquement.")+"</div>";
   document.getElementById("exam-ca").innerHTML = caHtml;
   document.getElementById("exam-ce").textContent = ok ? "👍 Conjugaison correcte au "+tense+"." : "";
   document.getElementById("exam-corr").classList.add("on");
@@ -3895,6 +4414,21 @@ function lecPlay(){
   speakLecLine();
 }
 
+// Choisit la voix française la plus naturelle disponible (voix réseau/neurale
+// de préférence, plutôt que la première voix locale trouvée, souvent robotique)
+function pickNaturalFrenchVoice(voices){
+  var fr = voices.filter(function(v){ return v.lang && v.lang.toLowerCase().indexOf('fr') === 0; });
+  if(!fr.length) return null;
+  var preferredNames = ['google français','microsoft denise','microsoft henri','microsoft julie','amélie','amelie','audrey','thomas'];
+  for(var i=0;i<preferredNames.length;i++){
+    var match = fr.find(function(v){ return v.name.toLowerCase().indexOf(preferredNames[i]) !== -1; });
+    if(match) return match;
+  }
+  var remote = fr.find(function(v){ return v.localService === false; });
+  if(remote) return remote;
+  return fr[0];
+}
+
 function speakLecLine(){
   if(!lecPlaying) return;
   var t = LECTURE_TEXTS[lecCurrentIdx];
@@ -3911,9 +4445,9 @@ function speakLecLine(){
     lineEl.scrollIntoView({behavior:'smooth', block:'center'});
   }
   var utt = new SpeechSynthesisUtterance(t.lignes[lecLineIdx]);
-  utt.lang = 'fr-FR'; utt.rate = 0.85;
+  utt.lang = 'fr-FR'; utt.rate = parseFloat(localStorage.getItem(VOICE_RATE_KEY)) || 0.85;
   var voices = window.speechSynthesis.getVoices();
-  var fr = voices.find(function(v){ return v.lang.startsWith('fr'); });
+  var fr = pickPreferredFrenchVoice(voices);
   if(fr) utt.voice = fr;
   utt.onend = function(){
     lecLineIdx++;
@@ -3922,7 +4456,7 @@ function speakLecLine(){
   if(voices.length === 0){
     window.speechSynthesis.onvoiceschanged = function(){
       var v2 = window.speechSynthesis.getVoices();
-      var fr2 = v2.find(function(v){ return v.lang.startsWith('fr'); });
+      var fr2 = pickPreferredFrenchVoice(v2);
       if(fr2) utt.voice = fr2;
       window.speechSynthesis.speak(utt);
     };

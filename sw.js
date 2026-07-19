@@ -1,11 +1,13 @@
-const CACHE_NAME = 'quiz-webbertinaud-v1';
+const CACHE_NAME = 'quiz-webbertinaud-v2';
 const APP_SHELL = [
   './Webbertinaud.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
   './icon-192-maskable.png',
-  './icon-512-maskable.png'
+  './icon-512-maskable.png',
+  './portrait-webbertinaud.jpg',
+  './hero-bg.jpg'
 ];
 
 self.addEventListener('install', function(event) {
