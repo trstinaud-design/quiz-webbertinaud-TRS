@@ -2222,15 +2222,7 @@ function onRateChange(){
   localStorage.setItem(VOICE_RATE_KEY, rateInput.value);
 }
 function testVoice(){
-  if(!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  var utt = new SpeechSynthesisUtterance("Bonjour, voici un exemple de ma voix pour lire les textes.");
-  utt.lang = 'fr-FR';
-  utt.rate = parseFloat(localStorage.getItem(VOICE_RATE_KEY)) || 0.85;
-  var voices = window.speechSynthesis.getVoices();
-  var v = pickPreferredFrenchVoice(voices);
-  if(v) utt.voice = v;
-  window.speechSynthesis.speak(utt);
+  speakFrench("Bonjour, voici un exemple de ma voix pour lire les textes.");
 }
 
 function pickPreferredFrenchVoice(voices){
@@ -2240,6 +2232,98 @@ function pickPreferredFrenchVoice(voices){
     if(chosen) return chosen;
   }
   return (typeof pickNaturalFrenchVoice === 'function') ? pickNaturalFrenchVoice(voices) : null;
+}
+
+// ================================================================
+// LECTURE VOCALE ROBUSTE (compatible Chrome, Safari/iOS, Android...)
+// ================================================================
+// iOS Safari exige que speak() soit appelé de façon SYNCHRONE, dans le même
+// tick que le tap/clic de l'utilisateur — le moindre setTimeout ou attente
+// d'un évènement asynchrone avant speak() fait que Safari refuse de parler,
+// silencieusement. C'est la cause n°1 de "ça marche sur PC mais pas sur
+// téléphone". speakFrench() ne retarde donc jamais l'appel à speak() :
+// - il parle immédiatement, avec utt.lang="fr-FR" (suffisant pour que
+//   l'appareil choisisse une voix française même si la liste des voix
+//   n'est pas encore chargée) ;
+// - il garde une référence forte à l'utterance (bug connu iOS : l'objet
+//   peut être supprimé par le ramasse-miettes avant la fin de la lecture) ;
+// - il ne fait cancel() que s'il y a réellement quelque chose en cours ;
+// - il contourne le bug Chrome qui met la lecture en pause après ~15s.
+var __speakWatchdog = null;
+var __currentUtterance = null;
+var __speechUnlocked = false;
+
+// Sur iOS/Safari (et les PWA en mode standalone), le moteur vocal doit être
+// "débloqué" par une first interaction : on lance une lecture silencieuse
+// dès le tout premier tap/clic sur la page pour préparer le terrain.
+function unlockSpeechEngine(){
+  if(__speechUnlocked || !window.speechSynthesis) return;
+  __speechUnlocked = true;
+  try{
+    var unlockUtt = new SpeechSynthesisUtterance(' ');
+    unlockUtt.volume = 0;
+    unlockUtt.lang = 'fr-FR';
+    window.speechSynthesis.speak(unlockUtt);
+  }catch(e){}
+}
+if(window.speechSynthesis){
+  document.addEventListener('touchstart', unlockSpeechEngine, {once:true, passive:true});
+  document.addEventListener('click', unlockSpeechEngine, {once:true});
+}
+
+function speakFrench(text, opts){
+  opts = opts || {};
+  if(!window.speechSynthesis){
+    if(opts.onError) opts.onError();
+    else alert('La synthèse vocale n\'est pas disponible sur ce navigateur.');
+    return;
+  }
+  var synth = window.speechSynthesis;
+  if(__speakWatchdog){ clearInterval(__speakWatchdog); __speakWatchdog = null; }
+
+  // On n'annule que s'il y a vraiment quelque chose en cours : un cancel()
+  // inutile juste avant speak() est ce qui casse la lecture sur certains
+  // navigateurs mobiles.
+  if(synth.speaking || synth.pending){
+    try{ synth.cancel(); }catch(e){}
+  }
+
+  var utt = new SpeechSynthesisUtterance(text);
+  __currentUtterance = utt; // évite que Safari/iOS jette l'objet avant la fin
+  utt.lang = 'fr-FR';
+  utt.rate = opts.rate || parseFloat(localStorage.getItem(VOICE_RATE_KEY)) || 0.85;
+  if(opts.pitch) utt.pitch = opts.pitch;
+
+  var voices = synth.getVoices();
+  if(voices && voices.length){
+    var v = pickPreferredFrenchVoice(voices);
+    if(v) utt.voice = v;
+  }
+  // Si les voix ne sont pas encore chargées (fréquent au 1er chargement sur
+  // mobile), on parle quand même tout de suite : utt.lang="fr-FR" suffit à
+  // faire choisir une voix française par le système. On ne bloque JAMAIS
+  // l'appel à speak() derrière une attente asynchrone.
+
+  utt.onstart = function(){ if(opts.onStart) opts.onStart(); };
+  utt.onend = function(){
+    if(__speakWatchdog){ clearInterval(__speakWatchdog); __speakWatchdog=null; }
+    if(opts.onEnd) opts.onEnd();
+  };
+  utt.onerror = function(e){
+    if(__speakWatchdog){ clearInterval(__speakWatchdog); __speakWatchdog=null; }
+    if(opts.onError) opts.onError(e);
+  };
+
+  // Empêche Chrome (surtout desktop/Android) de mettre la lecture en pause
+  // définitivement après ~15s sans jamais reprendre.
+  __speakWatchdog = setInterval(function(){
+    try{
+      if(synth.speaking){ synth.pause(); synth.resume(); }
+      else { clearInterval(__speakWatchdog); __speakWatchdog=null; }
+    }catch(e){ clearInterval(__speakWatchdog); __speakWatchdog=null; }
+  }, 9000);
+
+  synth.speak(utt);
 }
 
 buildThemeSwatches();
@@ -2896,37 +2980,17 @@ function renderEC(){
 }
 
 function speakEC(){
-  if(!window.speechSynthesis){alert('Utilise Google Chrome !');return;}
-  window.speechSynthesis.cancel();
-  var utt=new SpeechSynthesisUtterance(ecCurrentSentence);
-  utt.lang='fr-FR';utt.rate=0.8;utt.pitch=1;utt.volume=1;
-  var voices=window.speechSynthesis.getVoices();
-  var fr=voices.find(function(v){return v.lang.startsWith('fr');});
-  if(fr)utt.voice=fr;
   var playBtn=$('ec-play-btn');
-  utt.onstart=function(){if(playBtn){playBtn.textContent='⏹ En cours...';playBtn.style.background='var(--blue)';}};
-  utt.onend=function(){if(playBtn){playBtn.textContent='🔊 Écouter encore';playBtn.style.background='var(--green)';}};
-  if(voices.length===0){
-    window.speechSynthesis.onvoiceschanged=function(){
-      var v2=window.speechSynthesis.getVoices();
-      var fr2=v2.find(function(v){return v.lang.startsWith('fr');});
-      if(fr2)utt.voice=fr2;
-      window.speechSynthesis.speak(utt);
-    };
-  } else {
-    window.speechSynthesis.speak(utt);
-  }
+  speakFrench(ecCurrentSentence, {
+    rate: 0.8,
+    onStart:function(){if(playBtn){playBtn.textContent='⏹ En cours...';playBtn.style.background='var(--blue)';}},
+    onEnd:function(){if(playBtn){playBtn.textContent='🔊 Écouter encore';playBtn.style.background='var(--green)';}},
+    onError:function(){if(playBtn){playBtn.textContent='🔊 Écouter la phrase';playBtn.style.background='var(--green)';}}
+  });
 }
 
 function speakFull(){
-  if(!window.speechSynthesis)return;
-  window.speechSynthesis.cancel();
-  var utt=new SpeechSynthesisUtterance(ecCurrentFull);
-  utt.lang='fr-FR';utt.rate=0.85;
-  var voices=window.speechSynthesis.getVoices();
-  var fr=voices.find(function(v){return v.lang.startsWith('fr');});
-  if(fr)utt.voice=fr;
-  window.speechSynthesis.speak(utt);
+  speakFrench(ecCurrentFull, {rate: 0.85});
 }
 
 function checkEC(){
@@ -4444,31 +4508,29 @@ function speakLecLine(){
     lineEl.classList.add('active');
     lineEl.scrollIntoView({behavior:'smooth', block:'center'});
   }
-  var utt = new SpeechSynthesisUtterance(t.lignes[lecLineIdx]);
-  utt.lang = 'fr-FR'; utt.rate = parseFloat(localStorage.getItem(VOICE_RATE_KEY)) || 0.85;
-  var voices = window.speechSynthesis.getVoices();
-  var fr = pickPreferredFrenchVoice(voices);
-  if(fr) utt.voice = fr;
-  utt.onend = function(){
-    lecLineIdx++;
-    setTimeout(speakLecLine, 300);
-  };
-  if(voices.length === 0){
-    window.speechSynthesis.onvoiceschanged = function(){
-      var v2 = window.speechSynthesis.getVoices();
-      var fr2 = pickPreferredFrenchVoice(v2);
-      if(fr2) utt.voice = fr2;
-      window.speechSynthesis.speak(utt);
-    };
-  } else {
-    window.speechSynthesis.speak(utt);
-  }
+  speakFrench(t.lignes[lecLineIdx], {
+    onEnd: function(){ lecLineIdx++; setTimeout(speakLecLine, 250); },
+    onError: function(){ lecLineIdx++; setTimeout(speakLecLine, 250); }
+  });
 }
 
 buildLecList();
 
+function speakQuestion(){
+  var q = cjQs[cjIdx];
+  if(!q) return;
+  var spoken = q.sentence.replace('___', q.answer).replace(/\([^)]*\)/g,'').trim();
+  var btn = $('cj-tts');
+  speakFrench(spoken, {
+    onStart: function(){ if(btn){ btn.classList.add('speaking'); btn.textContent='⏹'; } },
+    onEnd: function(){ if(btn){ btn.classList.remove('speaking'); btn.textContent='🔊'; } },
+    onError: function(){ if(btn){ btn.classList.remove('speaking'); btn.textContent='🔊'; } }
+  });
+}
+
 function stopTTS(){
   if(window.speechSynthesis) window.speechSynthesis.cancel();
+  if(__speakWatchdog){ clearInterval(__speakWatchdog); __speakWatchdog=null; }
   var btn1=document.getElementById('cj-tts');
   if(btn1){btn1.classList.remove('speaking');btn1.textContent='🔊';}
 }
