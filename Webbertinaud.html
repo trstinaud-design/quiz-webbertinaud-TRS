@@ -319,6 +319,10 @@ body{font-family:'Lexend Deca',sans-serif;background:var(--bg);color:var(--text)
 .voice-rate-val{font-size:0.75rem;color:var(--gold2);text-align:right;margin-top:2px;}
 #voice-rate{width:100%;accent-color:var(--gold);}
 
+/* TOAST D'AIDE (voix indisponible, etc.) */
+.tts-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1.5px solid var(--gold);color:var(--text);padding:11px 18px;border-radius:12px;font-size:0.78rem;font-weight:600;line-height:1.4;z-index:900;opacity:0;transition:all 0.3s ease;box-shadow:0 8px 24px rgba(0,0,0,0.4);max-width:88vw;text-align:center;pointer-events:none;}
+.tts-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
 </style>
 </head>
 <body>
@@ -2222,7 +2226,28 @@ function onRateChange(){
   localStorage.setItem(VOICE_RATE_KEY, rateInput.value);
 }
 function testVoice(){
-  speakFrench("Bonjour, voici un exemple de ma voix pour lire les textes.");
+  speakFrench("Bonjour, voici un exemple de ma voix pour lire les textes.", {
+    onError: function(){ showVoiceHint(); }
+  });
+}
+
+// Message d'aide non-bloquant (pas de alert()) affiché quand la lecture
+// vocale échoue silencieusement — fréquent sur certains téléphones (ex:
+// Huawei sans services Google) qui n'ont aucun moteur de synthèse vocale
+// française installé au niveau du système.
+var __toastTimer = null;
+function showVoiceHint(){
+  var t = document.getElementById('tts-toast');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'tts-toast';
+    t.className = 'tts-toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = '🔇 La voix ne répond pas sur cet appareil. Vérifie qu\'une voix française est installée : Paramètres du téléphone → Langues → Synthèse vocale.';
+  t.classList.add('show');
+  if(__toastTimer) clearTimeout(__toastTimer);
+  __toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 6000);
 }
 
 function pickPreferredFrenchVoice(voices){
@@ -2304,12 +2329,15 @@ function speakFrench(text, opts){
   // faire choisir une voix française par le système. On ne bloque JAMAIS
   // l'appel à speak() derrière une attente asynchrone.
 
-  utt.onstart = function(){ if(opts.onStart) opts.onStart(); };
+  var started = false;
+  utt.onstart = function(){ started = true; if(opts.onStart) opts.onStart(); };
   utt.onend = function(){
+    started = true;
     if(__speakWatchdog){ clearInterval(__speakWatchdog); __speakWatchdog=null; }
     if(opts.onEnd) opts.onEnd();
   };
   utt.onerror = function(e){
+    started = true;
     if(__speakWatchdog){ clearInterval(__speakWatchdog); __speakWatchdog=null; }
     if(opts.onError) opts.onError(e);
   };
@@ -2324,6 +2352,17 @@ function speakFrench(text, opts){
   }, 9000);
 
   synth.speak(utt);
+
+  // Certains navigateurs (notamment sur des téléphones sans moteur vocal
+  // installé, ex: Huawei sans services Google) acceptent speak() sans
+  // jamais déclencher onstart ni onerror : la lecture échoue en silence.
+  // On détecte ce cas et on prévient l'utilisateur au lieu de ne rien dire.
+  setTimeout(function(){
+    if(!started){
+      if(__speakWatchdog){ clearInterval(__speakWatchdog); __speakWatchdog=null; }
+      if(opts.onError) opts.onError({silent:true});
+    }
+  }, 2500);
 }
 
 buildThemeSwatches();
@@ -2985,12 +3024,12 @@ function speakEC(){
     rate: 0.8,
     onStart:function(){if(playBtn){playBtn.textContent='⏹ En cours...';playBtn.style.background='var(--blue)';}},
     onEnd:function(){if(playBtn){playBtn.textContent='🔊 Écouter encore';playBtn.style.background='var(--green)';}},
-    onError:function(){if(playBtn){playBtn.textContent='🔊 Écouter la phrase';playBtn.style.background='var(--green)';}}
+    onError:function(){if(playBtn){playBtn.textContent='🔊 Écouter la phrase';playBtn.style.background='var(--green)';} showVoiceHint();}
   });
 }
 
 function speakFull(){
-  speakFrench(ecCurrentFull, {rate: 0.85});
+  speakFrench(ecCurrentFull, {rate: 0.85, onError: function(){ showVoiceHint(); }});
 }
 
 function checkEC(){
@@ -4463,7 +4502,7 @@ function lecBack(){
 }
 
 function lecPlay(){
-  if(!window.speechSynthesis){ alert('Utilise Google Chrome pour écouter le texte !'); return; }
+  if(!window.speechSynthesis){ alert('La lecture vocale n\'est pas disponible sur ce navigateur. Essaie de mettre à jour ton navigateur, ou d\'activer la synthèse vocale dans les paramètres de ton téléphone.'); return; }
   if(lecPlaying){
     window.speechSynthesis.cancel();
     lecPlaying = false;
@@ -4510,7 +4549,18 @@ function speakLecLine(){
   }
   speakFrench(t.lignes[lecLineIdx], {
     onEnd: function(){ lecLineIdx++; setTimeout(speakLecLine, 250); },
-    onError: function(){ lecLineIdx++; setTimeout(speakLecLine, 250); }
+    onError: function(e){
+      if(e && e.silent){
+        // Échec silencieux (pas de moteur vocal sur l'appareil) : inutile de
+        // retenter ligne par ligne, on arrête et on prévient une seule fois.
+        lecPlaying = false;
+        document.getElementById('lec-play-btn').textContent = '🔊 Écouter le texte';
+        document.querySelectorAll('.lec-line').forEach(function(el){ el.classList.remove('active'); });
+        showVoiceHint();
+        return;
+      }
+      lecLineIdx++; setTimeout(speakLecLine, 250);
+    }
   });
 }
 
@@ -4524,7 +4574,7 @@ function speakQuestion(){
   speakFrench(spoken, {
     onStart: function(){ if(btn){ btn.classList.add('speaking'); btn.textContent='⏹'; } },
     onEnd: function(){ if(btn){ btn.classList.remove('speaking'); btn.textContent='🔊'; } },
-    onError: function(){ if(btn){ btn.classList.remove('speaking'); btn.textContent='🔊'; } }
+    onError: function(){ if(btn){ btn.classList.remove('speaking'); btn.textContent='🔊'; } showVoiceHint(); }
   });
 }
 
