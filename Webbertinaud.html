@@ -319,6 +319,21 @@ body{font-family:'Lexend Deca',sans-serif;background:var(--bg);color:var(--text)
 .voice-rate-val{font-size:0.75rem;color:var(--gold2);text-align:right;margin-top:2px;}
 #voice-rate{width:100%;accent-color:var(--gold);}
 
+/* ================================================================
+   COMPRÉHENSION ORALE — vidéos YouTube + QCM
+   ================================================================ */
+.video-wrap{position:relative;width:100%;padding-top:56.25%;background:#000;border-radius:var(--r);overflow:hidden;margin-bottom:10px;border:1.5px solid var(--border);}
+.video-wrap iframe,.video-wrap video{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000;}
+.ec-video-title{font-size:0.9rem;font-weight:700;color:var(--gold2);margin-bottom:14px;text-align:center;}
+.ec-video-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all 0.2s;}
+.ec-video-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.35);}
+.ec-video-thumb{width:96px;height:54px;flex-shrink:0;border-radius:8px;background:#000 center/cover no-repeat;position:relative;overflow:hidden;}
+.ec-video-thumb::after{content:"▶";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem;text-shadow:0 2px 6px rgba(0,0,0,0.6);}
+.ec-video-body{flex:1;min-width:0;}
+.ec-video-t{font-size:0.92rem;font-weight:800;color:var(--text);line-height:1.3;margin-bottom:3px;}
+.ec-video-s{font-size:0.72rem;color:var(--muted);}
+.ec-video-badge{display:inline-block;font-size:0.62rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;padding:2px 8px;border-radius:99px;margin-right:5px;background:rgba(240,180,41,0.14);color:var(--gold);}
+
 /* TOAST D'AIDE (voix indisponible, etc.) */
 .tts-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1.5px solid var(--gold);color:var(--text);padding:11px 18px;border-radius:12px;font-size:0.78rem;font-weight:600;line-height:1.4;z-index:900;opacity:0;transition:all 0.3s ease;box-shadow:0 8px 24px rgba(0,0,0,0.4);max-width:88vw;text-align:center;pointer-events:none;}
 .tts-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -633,55 +648,54 @@ body{font-family:'Lexend Deca',sans-serif;background:var(--bg);color:var(--text)
 <!-- ═══ ÉCOUTE ═══ -->
 <div class="panel" id="t-ecoute">
   <div id="ec-menu">
-    <div class="sec-label">Mode d'écoute :</div>
-    <div style="background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px;">
-      <p style="font-size:0.85rem;color:var(--text);margin-bottom:8px;">🔊 <strong>Comment ça marche :</strong></p>
-      <p style="font-size:0.82rem;color:var(--muted);line-height:1.6;">1. Clique sur <strong style="color:var(--green)">▶ Écouter</strong> pour entendre la phrase<br>
-      2. La phrase est lue à voix haute en français<br>
-      3. Écris le verbe conjugué que tu as entendu<br>
-      4. Clique <strong style="color:var(--gold)">Valider</strong> pour vérifier</p>
+    <div class="hero-pill" style="margin-bottom:12px;">🎧 Compréhension orale</div>
+    <div style="background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;">
+      <p style="font-size:0.82rem;color:var(--muted);line-height:1.6;">
+        1. Regarde la vidéo (autant de fois que tu veux)<br>
+        2. Réponds aux questions à choix multiples<br>
+        3. Découvre ton score et les corrections
+      </p>
     </div>
-    <div class="sec-label">Choisir une section :</div>
-    <div class="sec-grid" id="ec-grid"></div>
-    <button class="go-btn" onclick="startEC()">▶ Commencer l'écoute</button>
+    <div class="sec-label">Choisir une vidéo :</div>
+    <div id="ec-video-list"></div>
   </div>
+
   <div id="ec-quiz" style="display:none">
+    <div class="video-wrap">
+      <iframe id="ec-yt-frame" src="" title="Vidéo de compréhension orale" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="display:none;"></iframe>
+      <video id="ec-mp4-player" controls playsinline preload="metadata" style="display:none;"></video>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;">
+      <div class="ec-video-title" id="ec-video-title" style="margin-bottom:0;flex:1;text-align:left;"></div>
+      <a id="ec-yt-link" href="#" target="_blank" rel="noopener" style="display:none;align-items:center;gap:6px;background:#ff0033;color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:0.78rem;font-weight:800;white-space:nowrap;transition:all 0.2s;">▶ Regarder sur YouTube</a>
+    </div>
+
     <div class="prog-area">
       <div class="prog-top"><span id="ec-ct">1/10</span><div class="score-pill">⭐ <span id="ec-sc">0</span></div></div>
       <div class="prog-bar-wrap"><div class="prog-bar" id="ec-pb" style="width:0%"></div></div>
     </div>
     <div class="q-card">
-      <div class="q-badges"><span class="bdg bdg-v" id="ec-vb"></span><span class="bdg bdg-t" id="ec-tb"></span></div>
-      <div style="text-align:center;padding:20px 0;">
-        <button id="ec-play-btn" onclick="speakEC()" style="background:var(--green);color:white;border:none;border-radius:14px;padding:16px 32px;font-family:Lexend Deca,sans-serif;font-size:1rem;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:10px;transition:all 0.2s;">
-          🔊 Écouter la phrase
-        </button>
-        <p style="font-size:0.75rem;color:var(--muted);margin-top:10px;">Clique plusieurs fois si besoin</p>
-      </div>
-      <div class="q-hint">✏️ Écris le verbe conjugué que tu as entendu :</div>
-      <div class="inp-row" style="margin-top:10px;">
-        <input class="ans-inp" id="ec-inp" type="text" placeholder="Ta réponse..." autocomplete="off" spellcheck="false">
-        <button class="val-btn" id="ec-val" onclick="checkEC()">Valider</button>
-      </div>
+      <div class="q-badges"><span class="bdg bdg-v" id="ec-vb"></span></div>
+      <div class="q-txt" id="ec-question-txt"></div>
+      <div class="opts" id="ec-opts"></div>
     </div>
     <div class="corr" id="ec-corr">
       <div class="corr-hd" id="ec-ch"></div>
       <div class="corr-bd">
         <div class="corr-ans" id="ec-ca"></div>
-        <div class="corr-full" id="ec-cf" style="cursor:pointer;" onclick="speakFull()" title="Cliquer pour écouter la phrase complète"></div>
         <div class="corr-expl" id="ec-ce"></div>
-        <div class="gloss"><div class="gloss-t">📖 Vocabulaire en Malagasy</div><table class="gtbl" id="ec-gl"></table></div>
       </div>
     </div>
     <div class="nav">
-      <button class="back-btn" onclick="resetEC()">← Sections</button>
+      <button class="back-btn" onclick="resetEC()">← Vidéos</button>
       <button class="nxt-btn" id="ec-nxt" onclick="nextEC()">Suivant →</button>
     </div>
   </div>
+
   <div class="res-card" id="ec-res" style="display:none">
     <div class="res-big" id="ec-rb"></div><div class="res-msg" id="ec-rm"></div><div class="res-sub" id="ec-rs"></div>
     <div class="rev-list" id="ec-rv"></div><br>
-    <button class="rst-btn" onclick="resetEC()">🔄 Autre section</button>
+    <button class="rst-btn" onclick="resetEC()">🔄 Autre vidéo</button>
   </div>
 </div>
 
@@ -2979,100 +2993,188 @@ function startMic(){
 }
 
 // ================================================================
-// ÉCOUTE JS 🔊
+// ÉCOUTE 🎧 — Compréhension orale à partir de vidéos YouTube
 // ================================================================
-var ecQs=[], ecIdx=0, ecSc=0, ecAns=false, ecHist=[];
-var selEC=0;
-var ecCurrentSentence='';
-var ecCurrentFull='';
+// Pour ajouter une nouvelle vidéo : copie l'objet ci-dessous et remplis-le.
+// - youtubeId : la partie APRÈS "youtu.be/" ou "watch?v=" dans le lien
+//   (ex: pour https://youtu.be/OahAf8cQvsw → youtubeId: "OahAf8cQvsw")
+// - questions : jusqu'à 10 questions à choix multiples. Le 1er choix
+//   du tableau "opts" est mélangé automatiquement, donc l'ordre n'a pas
+//   d'importance. "answer" doit correspondre exactement à un des "opts".
+// Chaque vidéo doit avoir SOIT youtubeId (pour YouTube), SOIT mp4Url (pour
+// un fichier MP4 direct comme TV5MONDE, France TV, etc.). Le lecteur s'adapte
+// automatiquement à la source.
+const ECOUTE_VIDEOS = [
+  {
+    id: "francophonie_erevan",
+    title: "Jeux de la Francophonie 2027 — Direction Erevan",
+    subtitle: "Spot officiel TV5MONDE · Arménie 2027",
+    level: "A2",
+    icon: "🏆",
+    mp4Url: "https://vod.tv5monde.com/enseigner/Francophonie/JDF-SpotErevan_BR3.mp4",
+    questions: [
+      // ⚠️ Écris ici tes questions après avoir regardé la vidéo.
+      // Format : { q:"...", opts:["A","B","C"], answer:"A", expl:"..." }
+      {
+        q: "Dans quelle ville auront lieu les Jeux de la Francophonie 2027 ?",
+        opts: ["Erevan", "Paris", "Kinshasa", "Abidjan"],
+        answer: "Erevan",
+        expl: "Erevan (Yerevan) est la capitale de l'Arménie, pays hôte des IXèmes Jeux de la Francophonie."
+      }
+    ]
+  }
+];
 
-buildGrid('ec-grid', CJ_SECTIONS, function(i){selEC=i;});
+var ecCurrentVideo = null;
+var ecQs = [], ecIdx = 0, ecSc = 0, ecAns = false, ecHist = [];
 
-function startEC(){
-  ecQs=shuffle(CJ_SECTIONS[selEC].questions);
-  ecIdx=0; ecSc=0; ecAns=false; ecHist=[];
-  $('ec-menu').style.display='none';
-  $('ec-res').style.display='none';
-  $('ec-quiz').style.display='block';
+function buildEcVideoList(){
+  var wrap = document.getElementById('ec-video-list');
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  ECOUTE_VIDEOS.forEach(function(v){
+    var card = document.createElement('div');
+    card.className = 'ec-video-card';
+    // Vignette : miniature YouTube si dispo, sinon un dégradé neutre
+    var thumbStyle;
+    if(v.youtubeId){
+      thumbStyle = "background-image:url('https://img.youtube.com/vi/" + v.youtubeId + "/mqdefault.jpg')";
+    } else {
+      thumbStyle = "background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%);display:flex;align-items:center;justify-content:center;color:#1a0e00;font-size:1.6rem;";
+    }
+    card.innerHTML =
+      '<div class="ec-video-thumb" style="' + thumbStyle + '">' + (v.youtubeId ? '' : v.icon) + '</div>' +
+      '<div class="ec-video-body">' +
+        '<div class="ec-video-t">' + v.icon + ' ' + v.title + '</div>' +
+        '<div class="ec-video-s">' +
+          '<span class="ec-video-badge">' + v.level + '</span>' +
+          v.questions.length + ' questions · ' + v.subtitle +
+        '</div>' +
+      '</div>';
+    card.onclick = function(){ startEC(v); };
+    wrap.appendChild(card);
+  });
+}
+
+buildEcVideoList();
+
+function startEC(video){
+  ecCurrentVideo = video;
+  ecQs = video.questions.slice(); // pas de shuffle : l'ordre des questions
+                                  // suit souvent le déroulé de la vidéo
+  ecIdx = 0; ecSc = 0; ecAns = false; ecHist = [];
+
+  var frame = document.getElementById('ec-yt-frame');
+  var mp4 = document.getElementById('ec-mp4-player');
+  var ytLink = document.getElementById('ec-yt-link');
+
+  if(video.youtubeId){
+    // Lecteur YouTube (iframe) — youtube-nocookie.com : mode "vie privée"
+    // officiel, plus permissif pour les intégrations. rel=0 : moins de
+    // suggestions à la fin. playsinline=1 : évite le plein écran forcé iOS.
+    frame.src = 'https://www.youtube-nocookie.com/embed/' + video.youtubeId +
+                '?rel=0&modestbranding=1&playsinline=1';
+    frame.style.display = 'block';
+    mp4.style.display = 'none';
+    try{ mp4.pause(); mp4.removeAttribute('src'); mp4.load(); }catch(e){}
+    ytLink.href = 'https://www.youtube.com/watch?v=' + video.youtubeId;
+    ytLink.style.display = 'inline-flex';
+  } else if(video.mp4Url){
+    // Lecteur HTML5 natif pour un fichier MP4 direct (TV5MONDE, France TV...)
+    frame.src = '';
+    frame.style.display = 'none';
+    mp4.src = video.mp4Url;
+    mp4.style.display = 'block';
+    mp4.load();
+    ytLink.style.display = 'none';
+  }
+
+  document.getElementById('ec-video-title').textContent = video.icon + ' ' + video.title;
+  document.getElementById('ec-menu').style.display = 'none';
+  document.getElementById('ec-res').style.display = 'none';
+  document.getElementById('ec-quiz').style.display = 'block';
   renderEC();
 }
 
 function renderEC(){
-  ecAns=false;
-  window.speechSynthesis.cancel();
-  var q=ecQs[ecIdx], tot=ecQs.length;
-  $('ec-ct').textContent=(ecIdx+1)+'/'+tot;
-  $('ec-sc').textContent=ecSc;
-  $('ec-pb').style.width=Math.round((ecIdx/tot)*100)+'%';
-  $('ec-vb').textContent=q.verb;
-  $('ec-tb').textContent=q.tense;
-  var spoken=q.sentence.replace('___',q.answer).replace(/[(][^)]+[)]/g,'').trim();
-  ecCurrentSentence=spoken;
-  ecCurrentFull=q.full||spoken;
-  var playBtn=$('ec-play-btn');
-  if(playBtn){playBtn.textContent='🔊 Écouter la phrase';playBtn.style.background='var(--green)';}
-  var inp=$('ec-inp');
-  inp.value='';inp.className='ans-inp';inp.disabled=false;
-  $('ec-val').disabled=false;
-  $('ec-corr').classList.remove('on');
-  $('ec-nxt').style.display='none';
-}
+  ecAns = false;
+  var q = ecQs[ecIdx], tot = ecQs.length;
+  $('ec-ct').textContent = (ecIdx + 1) + '/' + tot;
+  $('ec-sc').textContent = ecSc;
+  $('ec-pb').style.width = Math.round((ecIdx / tot) * 100) + '%';
+  $('ec-vb').textContent = 'Question ' + (ecIdx + 1);
+  $('ec-question-txt').textContent = q.q;
 
-function speakEC(){
-  var playBtn=$('ec-play-btn');
-  speakFrench(ecCurrentSentence, {
-    rate: 0.8,
-    onStart:function(){if(playBtn){playBtn.textContent='⏹ En cours...';playBtn.style.background='var(--blue)';}},
-    onEnd:function(){if(playBtn){playBtn.textContent='🔊 Écouter encore';playBtn.style.background='var(--green)';}},
-    onError:function(){if(playBtn){playBtn.textContent='🔊 Écouter la phrase';playBtn.style.background='var(--green)';} showVoiceHint();}
+  var optsWrap = $('ec-opts');
+  optsWrap.innerHTML = '';
+  var shuffledOpts = shuffle(q.opts);
+  shuffledOpts.forEach(function(opt){
+    var b = document.createElement('button');
+    b.className = 'opt';
+    b.textContent = opt;
+    b.onclick = function(){ checkEC(opt, b); };
+    optsWrap.appendChild(b);
   });
+
+  $('ec-corr').classList.remove('on');
+  $('ec-nxt').style.display = 'none';
 }
 
-function speakFull(){
-  speakFrench(ecCurrentFull, {rate: 0.85, onError: function(){ showVoiceHint(); }});
-}
+function checkEC(chosen, btn){
+  if(ecAns) return;
+  ecAns = true;
+  var q = ecQs[ecIdx];
+  var ok = norm(chosen) === norm(q.answer);
+  if(ok) { ecSc++; addGlobalScore(1); }
+  ecHist.push({ q: q.q, user: chosen, ok: ok, ans: q.answer });
 
-function checkEC(){
-  if(ecAns)return;
-  var inp=$('ec-inp'),val=inp.value.trim();
-  if(!val){inp.focus();return;}
-  ecAns=true;
-  window.speechSynthesis.cancel();
-  var q=ecQs[ecIdx];
-  var ok=q.answer.split('/').map(norm).includes(norm(val));
-  if(ok)ecSc++;
-  ecHist.push({q:q.sentence,user:val,ok:ok,ans:q.answer});
-  inp.className='ans-inp '+(ok?'ok':'no');inp.disabled=true;
-  $('ec-val').disabled=true;
-  var ch=$('ec-ch');ch.className='corr-hd '+(ok?'ok':'no');
-  ch.innerHTML=ok?'✅ Bonne réponse !':'❌ Pas tout à fait...';
-  $('ec-ca').innerHTML=ok?'<strong>Parfait !</strong> → <strong style="color:#34d399">'+q.answer+'</strong>':'Ta réponse : <strong style="color:#fb7185">'+val+'</strong> → <strong style="color:#34d399">'+q.answer+'</strong>';
-  $('ec-cf').innerHTML='🔊 <em style="color:var(--gold2);cursor:pointer;" onclick="speakFull()">'+q.full+'</em>';
-  $('ec-ce').textContent='📌 '+(q.expl||'');
-  $('ec-gl').innerHTML=(q.gloss||[]).map(function(g){return '<tr><td class="gfr">'+g.fr+'</td><td class="gtp">'+g.type+'</td><td class="gmg">🇲🇬 '+g.mg+'</td></tr>';}).join('');
+  // Désactive et colore les boutons de réponse
+  var buttons = $('ec-opts').querySelectorAll('.opt');
+  buttons.forEach(function(b){
+    b.disabled = true;
+    if(norm(b.textContent) === norm(q.answer)) b.classList.add('ok');
+    else if(b === btn && !ok) b.classList.add('no');
+  });
+
+  var ch = $('ec-ch');
+  ch.className = 'corr-hd ' + (ok ? 'ok' : 'no');
+  ch.innerHTML = ok ? '✅ Bonne réponse !' : '❌ Pas la bonne réponse...';
+  $('ec-ca').innerHTML = ok
+    ? '<strong>Parfait !</strong> → <strong style="color:#34d399">' + q.answer + '</strong>'
+    : 'Ta réponse : <strong style="color:#fb7185">' + chosen + '</strong><br>✅ Bonne réponse : <strong style="color:#34d399">' + q.answer + '</strong>';
+  $('ec-ce').textContent = q.expl ? '📌 ' + q.expl : '';
   $('ec-corr').classList.add('on');
-  $('ec-sc').textContent=ecSc;
-  var nb=$('ec-nxt');nb.style.display='block';
-  nb.textContent=ecIdx<ecQs.length-1?'Suivant →':'Voir les résultats';
+  $('ec-sc').textContent = ecSc;
+  var nb = $('ec-nxt');
+  nb.style.display = 'block';
+  nb.textContent = ecIdx < ecQs.length - 1 ? 'Suivant →' : 'Voir les résultats';
+}
+
+function stopEcVideos(){
+  // Coupe les deux lecteurs pour ne pas laisser jouer une vidéo en fond
+  try{ document.getElementById('ec-yt-frame').src = ''; }catch(e){}
+  try{
+    var mp4 = document.getElementById('ec-mp4-player');
+    mp4.pause(); mp4.removeAttribute('src'); mp4.load();
+  }catch(e){}
 }
 
 function nextEC(){
   ecIdx++;
-  if(ecIdx>=ecQs.length){
-    $('ec-quiz').style.display='none';
-    $('ec-res').style.display='block';
-    showResults('ec',ecSc,ecQs.length,ecHist);
+  if(ecIdx >= ecQs.length){
+    $('ec-quiz').style.display = 'none';
+    $('ec-res').style.display = 'block';
+    stopEcVideos();
+    showResults('ec', ecSc, ecQs.length, ecHist);
   } else renderEC();
 }
 
 function resetEC(){
-  window.speechSynthesis.cancel();
-  $('ec-quiz').style.display='none';
-  $('ec-res').style.display='none';
-  $('ec-menu').style.display='block';
+  stopEcVideos();
+  $('ec-quiz').style.display = 'none';
+  $('ec-res').style.display = 'none';
+  $('ec-menu').style.display = 'block';
 }
-
-document.getElementById('ec-inp').addEventListener('keydown',function(e){if(e.key==='Enter')checkEC();});
 
 
 // ================================================================
